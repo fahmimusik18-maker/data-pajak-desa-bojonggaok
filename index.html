@@ -7,6 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- FIREBASE LIBRARIES (Wajib untuk Database Online) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <style>
         :root {
             --primary: #2E7D32;
@@ -84,15 +88,15 @@
             margin-bottom: 16px;
         }
         .login-card h1 { color: var(--text-dark); font-size: 24px; font-weight: 700; margin-bottom: 8px; }
-        .login-card p.subtitle { color: var(--text-light); font-size: 14px; margin-bottom: 32px; }
+        .login-card p.subtitle { color: #6B7280; font-size: 14px; margin-bottom: 32px; }
 
         .form-group { margin-bottom: 20px; text-align: left; position: relative; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; }
         .input-wrapper { position: relative; }
-        .input-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-light); font-size: 16px; transition: color 0.2s; }
+        .input-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF; font-size: 16px; transition: color 0.2s; }
         input {
             width: 100%; padding: 12px 40px 12px 42px;
-            border:1px solid var(--border); border-radius: 8px;
+            border: 1px solid var(--border); border-radius: 8px;
             font-size: 14px; outline: none; transition: all 0.2s;
         }
         input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2); }
@@ -101,7 +105,7 @@
         
         .error-msg {
             color: var(--danger); font-size: 12px; margin-top: 6px;
-            display: flex; align-items: center; gap:5px;
+            display: flex; align-items: center; gap: 5px;
             opacity: 0; transform: translateY(-5px); transition: all 0.2s; height: 0; overflow: hidden;
         }
         .error-msg.visible { opacity: 1; transform: translateY(0); height: auto; margin-top: 8px; }
@@ -125,10 +129,16 @@
            ============================ */
         /* Sidebar */
         .sidebar {
-            width: 260px; background-color: var(--sidebar-bg); color: var(--white);
-            display: flex; flex-direction: column; flex-shrink: 0;
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
             transition: width 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
-            opacity: 1; overflow: hidden; white-space: nowrap;
+            opacity: 1;
+            overflow: hidden;
+            white-space: nowrap;
         }
         .sidebar.collapsed { width: 0; padding: 0; opacity: 0; border: none; }
         .sidebar-header { padding: 1.5rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); min-width: 200px; }
@@ -151,20 +161,24 @@
         }
         .header-left { display: flex; align-items: center; flex: 1; justify-content: space-between; }
         .header-title-group { display: flex; align-items: center; }
+        
         .btn-toggle-sidebar {
             background: none; border: none; font-size: 1.5rem; color: var(--primary);
             cursor: pointer; margin-right: 1.5rem; padding: 0.5rem; border-radius: 50%; transition: background 0.2s;
         }
         .btn-toggle-sidebar:hover { background-color: #f0fdf4; }
+
         .header-info { flex: 1; text-align: center; }
         .header-info h1 { font-size: 1.4rem; font-weight: 900; text-transform: uppercase; color: var(--primary); margin-bottom: 0.2rem; }
         .header-info p { font-size: 0.9rem; font-weight: 700; color: #666; text-transform: uppercase; }
+        
         .active-year-badge {
             background-color: var(--secondary); color: #78350F; padding: 6px 12px;
             border-radius: 20px; font-weight: 800; font-size: 0.9rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s;
         }
         .active-year-badge:hover { transform: scale(1.05); }
+
         .btn-logout {
             background: #FEE2E2; border: 1px solid #FCA5A5; color: var(--danger);
             padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all 0.2s;
@@ -177,11 +191,11 @@
         .page-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Data Tahunan */
+        /* Year Selection */
         .year-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
         .year-card {
             background: white; border-radius: 12px; padding: 2rem 1rem; text-align: center; cursor: pointer;
-            border: 2px solid transparent; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: all 0.2s; position: relative;
+            border: 2px solid transparent; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: all 0.2s;
         }
         .year-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .year-card.active { border-color: var(--primary); background-color: #f0fdf4; }
@@ -203,17 +217,7 @@
         .card-info h3 { font-size: 0.85rem; color: #6B7280; font-weight: 500; margin-bottom: 5px; line-height: 1.2; }
         .card-info p { font-size: 1.2rem; font-weight: 700; color: var(--text-dark); }
 
-        /* Color Utils */
-        .bg-blue { background-color: #DBEAFE; color: #1E40AF; }
-        .bg-green { background-color: #D1FAE5; color: #065F46; }
-        .bg-red { background-color: #FEE2E2; color: #991B1B; }
-        .bg-yellow { background-color: #FEF3C7; color: #92400E; }
-        .bg-purple { background-color: #EDE9FE; color: #5B21B6; }
-        .bg-orange { background-color: #FFEDD5; color: #9A3412; }
-        .bg-teal { background-color: #CCFBF1; color: #115E59; }
-        .bg-pink { background-color: #FCE7F3; color: #9D174D; }
-
-        /* Toolbar & Table */
+        /* Table & Form */
         .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
         .page-title { font-size: 1.5rem; font-weight: 700; color: var(--primary-dark); }
         .search-container { flex: 1; max-width: 400px; position: relative; }
@@ -225,7 +229,8 @@
         .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
         .btn-add {
             background-color: var(--primary); color: white; border: none; padding: 10px 20px;
-            border-radius: 8px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s; white-space: nowrap;
+            border-radius: 8px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px;
+            transition: background 0.2s; white-space: nowrap;
         }
         .btn-add:hover { background-color: var(--primary-dark); }
         .table-container { background: var(--white); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); overflow-x: auto; }
@@ -269,6 +274,16 @@
         .btn-save { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; }
         .info-text { font-size: 0.75rem; color: var(--primary-dark); margin-top: 4px; font-weight: 500; display: block; }
 
+        /* Color Utils */
+        .bg-blue { background-color: #DBEAFE; color: #1E40AF; }
+        .bg-green { background-color: #D1FAE5; color: #065F46; }
+        .bg-red { background-color: #FEE2E2; color: #991B1B; }
+        .bg-yellow { background-color: #FEF3C7; color: #92400E; }
+        .bg-purple { background-color: #EDE9FE; color: #5B21B6; }
+        .bg-orange { background-color: #FFEDD5; color: #9A3412; }
+        .bg-teal { background-color: #CCFBF1; color: #115E59; }
+        .bg-pink { background-color: #FCE7F3; color: #9D174D; }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar { position: fixed; z-index: 50; height: 100vh; top: 0; left: 0; transform: translateX(-100%); width: 260px; }
@@ -294,9 +309,7 @@
         <div class="login-bg-filter"></div>
         <div class="login-card">
             <div class="logo-area">
-                <div class="logo-icon">
-                    <i class="fa-solid fa-landmark"></i>
-                </div>
+                <div class="logo-icon"><i class="fa-solid fa-landmark"></i></div>
                 <h1>Login Pajak Desa</h1>
                 <p class="subtitle">Silakan masuk untuk melihat tagihan.</p>
             </div>
@@ -545,35 +558,22 @@
     </div>
 
     <script>
-        // --- 0. KONFIGURASI PENYIMPAN (LOCALSTORAGE) ---
-        
-        // Data Default (untuk pertama kali dibuka)
-        let defaultWajibPajak = [
-            { nomor:1, nop:"006.0123-0", nik:"3206352002850001", nama:"Asep Sunandar", alamat:"Kp. Bojonggaok RT 01 RW 02", jenisTanah:"Tanah Sawah", luasTanah:120, luasBangunan:60, pajak:250000 },
-            { nomor:2, nop:"006.0124-1", nik:"3206352002850002", nama:"Siti Aminah", alamat:"Kp. Bojonggaok RT 02 RW 02", jenisTanah:"Kolam", luasTanah:50, luasBangunan:0, pajak:150000 },
-            { nomor:3, nop:"007.0555-2", nik:"", nama:"Budi Santoso", alamat:"Kp. Bojonggaok RT 03 RW 01", jenisTanah:"Tanah Berdiri Bangunan", luasTanah:350, luasBangunan:120, pajak:300000 }
-        ];
-
-        let defaultDataBayarPerTahun = {
-            "2026": { "006.0123-0": { bayar:50000, tanggal:"2023-10-01" }, "006.0124-1": { bayar:150000, tanggal:"2023-10-05" }, "007.0555-2": { bayar:0, tanggal:"" } }
+        // --- 0. KONFIGURASI FIREBASE (DARI ANDA) ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyAsLGPhEn62etQwVjl2kyhS-fqhBy7RWVE",
+          authDomain: "data-wajib-pajak-tanah.firebaseapp.com",
+          projectId: "data-wajib-pajak-tanah",
+          storageBucket: "data-wajib-pajak-tanah.appspot.com",
+          messagingSenderId: "532762146177",
+          appId: "1:532762146177:web:8899c387bd4ddcd18f2480",
+          measurementId: "G-X72X7KSPFQ"
         };
 
-        let defaultListTahun = ["2024", "2025", "2026", "2027", "2028", "2029", "2030"];
-
-        // Load Data dari LocalStorage atau gunakan Default
-        let wajibPajak = JSON.parse(localStorage.getItem('wajibPajak')) || defaultWajibPajak;
-        let dataBayarPerTahun = JSON.parse(localStorage.getItem('dataBayarPerTahun')) || defaultDataBayarPerTahun;
-        let listTahun = JSON.parse(localStorage.getItem('listTahun')) || defaultListTahun;
-        let tahunAktif = parseInt(localStorage.getItem('tahunAktif')) || 2026; 
-
-        // Fungsi Simpan Data ke LocalStorage
-        function simpanData() {
-            localStorage.setItem('wajibPajak', JSON.stringify(wajibPajak));
-            localStorage.setItem('dataBayarPerTahun', JSON.stringify(dataBayarPerTahun));
-            localStorage.setItem('listTahun', JSON.stringify(listTahun));
-            localStorage.setItem('tahunAktif', tahunAktif);
-            console.log("Data tersimpan ke LocalStorage");
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
+        const db = firebase.firestore();
 
         // --- 1. LOGIKA LOGIN ---
         const loginSection = document.getElementById('loginSection');
@@ -636,6 +636,8 @@
         }
         function handleLoginSuccess() {
             loginSection.classList.add('hidden');
+            // Load data setelah login sukses
+            loadDataFromServer();
         }
         function handleLogout() {
             if(confirm("Apakah Anda yakin ingin keluar?")) {
@@ -645,7 +647,13 @@
             }
         }
 
-        // --- 2. LOGIKA DASHBOARD ---
+        // --- 2. LOGIKA DATA ONLINE ---
+        
+        let wajibPajak = [];
+        let dataBayarPerTahun = {};
+        let listTahun = ["2024", "2025", "2026", "2027", "2028", "2029", "2030"];
+        let tahunAktif = 2026; // Default tahun
+        let isDataLoading = false; // Mencegah spam klik
 
         // DOM Elements
         const tableBody = document.getElementById('tableBody');
@@ -660,29 +668,104 @@
         const labelBayar = document.getElementById('labelBayar');
         const infoTotalBayar = document.getElementById('infoTotalBayar');
 
-        // Fungsi Tahunan
-        function initYearData(year) {
-            if (!dataBayarPerTahun[year]) {
-                dataBayarPerTahun[year] = {};
-                wajibPajak.forEach(wp => {
-                    dataBayarPerTahun[year][wp.nop] = { bayar: 0, tanggal: "" };
-                });
-                simpanData(); // Simpan struktur tahun baru
+        // Format Rupiah
+        const formatRupiah = (number) => {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        };
+
+        // Ambil Data dari Firestore
+        async function loadDataFromServer() {
+            if (isDataLoading) return;
+            isDataLoading = true;
+            
+            try {
+                showLoadingToast(true); // Opsional: Feedback visual
+                const snapshot = await db.collection('wajib_pajak').get();
+                const data = [];
+                const pembayaran = {};
+
+                if (snapshot.empty) {
+                    console.log("Database kosong.");
+                    wajibPajak = [];
+                    dataBayarPerTahun = {};
+                } else {
+                    snapshot.forEach(doc => {
+                        const item = doc.data();
+                        item.nomor = 0; // Akan diupdate nanti
+                        
+                        // Pecah data pembayaran dari object master
+                        // Struktur: { pembayaran_2026: { bayar: 0, tanggal: "" }, ... }
+                        Object.keys(item).forEach(key => {
+                            if(key.startsWith('pembayaran_')) {
+                                const thn = key.replace('pembayaran_', '');
+                                const payData = item[key];
+                                
+                                if(!pembayaran[thn]) pembayaran[thn] = {};
+                                pembayaran[thn][item.nop] = { bayar: payData.bayar || 0, tanggal: payData.tanggal || "" };
+                            }
+                        });
+                        
+                        // Hapus field pembayaran dari item utama biar rapi (opsional, tapi di sini kita butuh untuk table)
+                        // Kita simpan data bersih di wajibPajak
+                        data.push({
+                            nomor: item.nomor,
+                            nop: item.nop,
+                            nik: item.nik,
+                            nama: item.nama,
+                            alamat: item.alamat,
+                            jenisTanah: item.jenisTanah,
+                            luasTanah: item.luasTanah,
+                            luasBangunan: item.luasBangunan,
+                            pajak: item.pajak
+                        });
+                    });
+                }
+
+                // Sortir berdasarkan nama
+                data.sort((a,b) => a.nama.localeCompare(b.nama));
+                
+                // Update nomor urut
+                data.forEach((d, i) => d.nomor = i + 1);
+
+                wajibPajak = data;
+                dataBayarPerTahun = pembayaran;
+                
+                // Simpan tahun aktif terakhir ke localstorage
+                const lastYear = localStorage.getItem('lastActiveYear');
+                if(lastYear && listTahun.includes(lastYear)) {
+                    tahunAktif = parseInt(lastYear);
+                }
+
+                refreshAllUI();
+                console.log("Data berhasil diambil dari Server");
+
+            } catch (error) {
+                console.error("Gagal mengambil data:", error);
+                alert("Gagal mengambil data. Pastikan Internet Anda aktif dan aturan Firestore 'read/write: if true'.");
+            } finally {
+                isDataLoading = false;
+                // Hapus loading toast jika ada
             }
         }
 
-        function changeYear(year) {
-            tahunAktif = year;
-            simpanData(); // Simpan tahun aktif yang baru
-            initYearData(year);
-            
+        function refreshAllUI() {
+            // Update Text Tahun
             document.getElementById('headerYear').textContent = tahunAktif;
             document.getElementById('dashboardYearText').textContent = tahunAktif;
             document.getElementById('tableYearText').textContent = tahunAktif;
             
+            // Simpan preferensi tahun
+            localStorage.setItem('lastActiveYear', tahunAktif);
+
             renderYearGrid();
             renderTable(wajibPajak);
             updateDashboardStats();
+        }
+
+        // --- 3. FUNGSI TAHUNAN ---
+        function changeYear(year) {
+            tahunAktif = year;
+            refreshAllUI();
         }
 
         function renderYearGrid() {
@@ -693,14 +776,22 @@
                 const isActive = year == tahunAktif;
                 const card = document.createElement('div');
                 card.className = `year-card ${isActive ? 'active' : ''}`;
-                card.onclick = () => {
+                card.onclick = () => { 
                     changeYear(year);
-                    switchPage('dashboard-home');
+                    switchPage('dashboard-home'); 
                 };
 
                 let hasData = false;
-                if(dataBayarPerTahun[year]) {
-                    hasData = Object.values(dataBayarPerTahun[year]).some(item => item.bayar > 0);
+                // Cek apakah ada uang masuk di tahun tersebut di SETIAP data wajib pajak
+                // Ini berat sedikit di client side, tapi cukup cepat
+                for(let i=0; i<wajibPajak.length; i++) {
+                    const nop = wajibPajak[i].nop;
+                    if(dataBayarPerTahun[year] && dataBayarPerTahun[year][nop]) {
+                        if(dataBayarPerTahun[year][nop].bayar > 0) {
+                            hasData = true;
+                            break;
+                        }
+                    }
                 }
 
                 card.innerHTML = `
@@ -710,6 +801,7 @@
                 grid.appendChild(card);
             });
 
+            // Tambah tombol tahun baru
             const addBtn = document.createElement('div');
             addBtn.className = 'year-card add-year-card';
             addBtn.innerHTML = `
@@ -719,13 +811,12 @@
             addBtn.onclick = () => {
                 const newYear = parseInt(listTahun[listTahun.length-1]) + 1;
                 listTahun.push(newYear.toString());
-                simpanData(); // Simpan list tahun
                 renderYearGrid();
             };
             grid.appendChild(addBtn);
         }
 
-        // Navigasi
+        // --- 4. NAVIGASI ---
         function switchPage(pageId) {
             document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
@@ -743,7 +834,6 @@
                 document.getElementById('sidebar').classList.remove('mobile-active');
                 document.getElementById('sidebarToggle').querySelector('i').className = "fa-solid fa-bars";
             }
-
             if(pageId === 'dashboard-home') updateDashboardStats();
             if(pageId === 'data-tahunan') renderYearGrid();
         }
@@ -766,22 +856,21 @@
             }
         });
 
-        // Logika Tabel & Data
-        const formatRupiah = (number) => {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
-        };
-
+        // --- 5. FUNGSI TABEL ---
         function renderTable(dataMaster) {
             tableBody.innerHTML = "";
-            const tahunData = dataBayarPerTahun[tahunAktif] || {};
             if(dataMaster.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="14" style="text-align:center; padding: 2rem;">Data tidak ditemukan.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="14" style="text-align:center; padding: 2rem;">Belum ada data. Klik "Tambah Data" untuk input awal.</td></tr>`;
                 return;
             }
 
             dataMaster.forEach((item, index) => {
                 const tr = document.createElement('tr');
-                const payment = tahunData[item.nop] || { bayar: 0, tanggal: "" };
+                // Ambil data pembayaran tahun aktif
+                const payment = (dataBayarPerTahun[tahunAktif] && dataBayarPerTahun[tahunAktif][item.nop]) 
+                              ? dataBayarPerTahun[tahunAktif][item.nop] 
+                              : { bayar: 0, tanggal: "" };
+
                 const sisaPajak = item.pajak - payment.bayar;
                 
                 let status = "Belum Lunas";
@@ -806,10 +895,10 @@
                     <td>${payment.tanggal || '-'}</td>
                     <td>
                         <button class="action-btn btn-edit" onclick="openModal('edit', ${index})" title="Edit / Tambah Bayar">
-                            <i class="fa-solid fa-pen-to-square"></i></button>
+                            <i class="fa-solid fa-pen-to-square"></i>
                         </button>
                         <button class="action-btn btn-delete" onclick="deleteData(${index})" title="Hapus">
-                            <i class="fa-solid fa-trash"></i></button>
+                            <i class="fa-solid fa-trash"></i>
                         </button>
                     </td>
                 `;
@@ -827,12 +916,15 @@
             renderTable(filteredData);
         });
 
+        // --- 6. MODAL ---
         let oldBayarAmount = 0;
 
         function updateLiveCalculation() {
             const pajak = parseInt(inputPajak.value) || 0;
             const bayarInput = parseInt(inputBayar.value) || 0;
-            const projectedTotalBayar = (modalTitle.textContent === "Edit Data Pajak") ? (oldBayarAmount + bayarInput) : bayarInput;
+            const projectedTotalBayar = (modalTitle.textContent === "Edit Data Pajak") 
+                ? (oldBayarAmount + bayarInput) 
+                : bayarInput;
             const sisa = pajak - projectedTotalBayar;
             displaySisa.value = formatRupiah(sisa);
         }
@@ -842,7 +934,7 @@
         window.openModal = function(mode, index = null) {
             modalOverlay.classList.add('active');
             const editIndexInput = document.getElementById('editIndex');
-            const tahunData = dataBayarPerTahun[tahunAktif] || {};
+            const tahunData = (dataBayarPerTahun[tahunAktif]) || {};
 
             if (mode === 'edit') {
                 modalTitle.textContent = "Edit Data Pajak";
@@ -862,7 +954,6 @@
 
                 oldBayarAmount = payment.bayar;
                 document.getElementById('inputBayar').value = 0; 
-                
                 labelBayar.textContent = "Tambah Pembayaran (Rp)";
                 infoTotalBayar.textContent = `Total saat ini: ${formatRupiah(payment.bayar)}`;
                 infoTotalBayar.style.display = "block";
@@ -883,72 +974,145 @@
             modalOverlay.classList.remove('active');
         };
 
-        pajakForm.addEventListener('submit', function(e) {
+        // --- 7. SIMPAN KE SERVER ---
+        pajakForm.addEventListener('submit', async function(e) {
             e.preventDefault();
+            
             const index = parseInt(document.getElementById('editIndex').value);
             const inputBayarVal = parseInt(document.getElementById('inputBayar').value) || 0;
-
-            let finalBayar = 0;
-            if (index === -1) { finalBayar = inputBayarVal; } else { finalBayar = oldBayarAmount + inputBayarVal; }
             
-            const newData = {
-                nomor: index === -1 ? wajibPajak.length + 1 : wajibPajak[index].nomor,
-                nop: document.getElementById('inputNop').value,
-                nik: document.getElementById('inputNik').value, 
-                nama: document.getElementById('inputNama').value,
-                alamat: document.getElementById('inputAlamat').value,
-                jenisTanah: document.getElementById('inputJenisTanah').value,
-                luasTanah: parseFloat(document.getElementById('inputLuasTanah').value) || 0, 
-                luasBangunan: parseFloat(document.getElementById('inputLuasBangunan').value) || 0, 
-                pajak: parseInt(document.getElementById('inputPajak').value),
-                bayar: finalBayar, 
-                tanggal: document.getElementById('inputTanggal').value || dataBayarPerTahun[tahunAktif][wajibPajak[index]?.nop]?.tanggal || "" 
-            };
+            // Tentukan Data Master (Nama, Alamat, dll)
+            let finalMasterData;
+            let targetNOP;
 
             if (index === -1) {
-                wajibPajak.push(newData);
+                // Mode Tambah Baru
+                targetNOP = document.getElementById('inputNop').value;
+                finalMasterData = {
+                    nop: targetNOP,
+                    nik: document.getElementById('inputNik').value, 
+                    nama: document.getElementById('inputNama').value,
+                    alamat: document.getElementById('inputAlamat').value,
+                    jenisTanah: document.getElementById('inputJenisTanah').value,
+                    luasTanah: parseFloat(document.getElementById('inputLuasTanah').value) || 0, 
+                    luasBangunan: parseFloat(document.getElementById('inputLuasBangunan').value) || 0, 
+                    pajak: parseInt(document.getElementById('inputPajak').value),
+                    nomor: wajibPajak.length + 1
+                };
             } else {
-                wajibPajak[index] = newData;
+                // Mode Edit
+                targetNOP = document.getElementById('inputNop').value;
+                finalMasterData = wajibPajak[index];
+                finalMasterData.nop = document.getElementById('inputNop').value;
+                finalMasterData.nik = document.getElementById('inputNik').value; 
+                finalMasterData.nama = document.getElementById('inputNama').value;
+                finalMasterData.alamat = document.getElementById('inputAlamat').value;
+                finalMasterData.jenisTanah = document.getElementById('inputJenisTanah').value;
+                finalMasterData.luasTanah = parseFloat(document.getElementById('inputLuasTanah').value) || 0; 
+                finalMasterData.luasBangunan = parseFloat(document.getElementById('inputLuasBangunan').value) || 0; 
+                finalMasterData.pajak = parseInt(document.getElementById('inputPajak').value);
             }
 
-            // Simpan pembayaran berdasarkan NOP dan Tahun Aktif
-            dataBayarPerTahun[tahunAktif][newData.nop] = {
+            // Hitung total bayar baru
+            let finalBayar = 0;
+            if (index === -1) {
+                finalBayar = inputBayarVal;
+            } else {
+                finalBayar = oldBayarAmount + inputBayarVal;
+            }
+
+            // Siapkan field update khusus untuk tahun aktif
+            // Kita menggunakan dot notation: `['pembayaran_2026']` untuk dynamic key
+            const tahunFieldKey = `pembayaran_${tahunAktif}`;
+            const updateDataObj = {};
+            updateDataObj[tahunFieldKey] = {
                 bayar: finalBayar,
-                tanggal: newData.tanggal
+                tanggal: document.getElementById('inputTanggal').value || (index !== -1 && dataBayarPerTahun[tahunAktif][finalMasterData.nop]?.tanggal) || ""
             };
 
-            simpanData(); // <--- PENTING: Panggil simpanData di sini
-            renderTable(wajibPajak);
-            updateDashboardStats();
-            closeModal();
+            // Tampilkan Loading
+            const saveBtn = document.querySelector('.btn-save');
+            const originalBtnText = saveBtn.textContent;
+            saveBtn.textContent = "Menyimpan ke Server...";
+            saveBtn.disabled = true;
+
+            try {
+                const docRef = db.collection('wajib_pajak').doc(targetNOP);
+
+                // Cek apakah update atau set baru
+                const docSnapshot = await docRef.get();
+                
+                let finalPayload;
+
+                if (docSnapshot.exists) {
+                    // UPDATE: Gabungkan data lama + data baru
+                    const existingData = docSnapshot.data();
+                    finalPayload = {
+                        ...existingData,
+                        ...finalMasterData, // Overwrite data master (Nama, Alamat, dll)
+                        [tahunFieldKey]: updateDataObj[tahunFieldKey] // Update tahun spesifik saja
+                    };
+                    await docRef.update(finalPayload);
+                } else {
+                    // SET NEW
+                    finalPayload = {
+                        ...finalMasterData,
+                        [tahunFieldKey]: updateDataObj[tahunFieldKey]
+                    };
+                    await docRef.set(finalPayload);
+                }
+
+                // Update Local Data Agar Segera Muncul (Tanpa reload)
+                if (index === -1) {
+                    wajibPajak.push(finalPayload);
+                } else {
+                    wajibPajak[index] = finalPayload;
+                }
+
+                // Reconstruct dataBayarPerTahun dari data lokal yang sudah diupdate
+                if(!dataBayarPerTahun[tahunAktif]) dataBayarPerTahun[tahunAktif] = {};
+                dataBayarPerTahun[tahunAktif][targetNOP] = updateDataObj[tahunFieldKey];
+
+                refreshAllUI();
+                closeModal();
+
+            } catch (error) {
+                console.error("Gagal menyimpan:", error);
+                alert("Terjadi kesalahan saat menyimpan: " + error.message);
+            } finally {
+                saveBtn.textContent = originalBtnText;
+                saveBtn.disabled = false;
+            }
         });
 
-        window.deleteData = function(index) {
-            if(confirm('Apakah Anda yakin ingin menghapus data ini? Data akan dihapus dari SEMUA tahun.')) {
+        // --- 8. HAPUS DATA ---
+        window.deleteData = async function(index) {
+            if(confirm('Apakah Anda yakin ingin menghapus data ini? Data akan dihapus PERMANEN dari Server.')) {
                 const nop = wajibPajak[index].nop;
-                wajibPajak.splice(index, 1);
-                wajibPajak.forEach((d, i) => d.nomor = i + 1);
                 
-                // Hapus dari seluruh data pembayaran (loop tahun)
-                Object.keys(dataBayarPerTahun).forEach(th => {
-                    if(dataBayarPerTahun[th][nop]) {
-                        delete dataBayarPerTahun[th][nop];
-                    }
-                });
+                try {
+                    await db.collection('wajib_pajak').doc(nop).delete();
+                    
+                    // Hapus dari array lokal
+                    wajibPajak.splice(index, 1);
+                    wajibPajak.forEach((d, i) => d.nomor = i + 1);
+                    
+                    // Hapus dari objek pembayaran lokal
+                    Object.keys(dataBayarPerTahun).forEach(th => {
+                        if(dataBayarPerTahun[th] && dataBayarPerTahun[th][nop]) {
+                            delete dataBayarPerTahun[th][nop];
+                        }
+                    });
 
-                simpanData(); // <--- PENTING: Panggil simpanData di sini
-                const keyword = searchInput.value.toLowerCase();
-                if(keyword) {
-                    const filteredData = wajibPajak.filter(item => item.nama.toLowerCase().includes(keyword) || item.nop.toLowerCase().includes(keyword) || item.nik.includes(keyword));
-                    renderTable(filteredData);
-                } else {
-                    renderTable(wajibPajak);
+                    refreshAllUI();
+                } catch (error) {
+                    console.error("Gagal menghapus:", error);
+                    alert("Gagal menghapus data.");
                 }
-                updateDashboardStats();
             }
         };
 
-        // Update Statistik
+        // --- 9. UPDATE STATISTIK ---
         function updateDashboardStats() {
             const tahunData = dataBayarPerTahun[tahunAktif] || {};
             
@@ -982,15 +1146,17 @@
             document.getElementById('total-ketetapan').textContent = formatRupiah(totalKetetapan);
         }
 
+        // Helper: Toast Loading
+        function showLoadingToast(show) {
+            // Opsional, bisa dikembangkan jika ingin ada notifikasi loading di tengah
+        }
+
         modalOverlay.addEventListener('click', function(e) {
             if (e.target === modalOverlay) closeModal();
         });
 
-        // Initialize
-        initYearData(tahunAktif);
-        renderYearGrid();
-        updateDashboardStats();
-        renderTable(wajibPajak);
+        // Initial Load
+        refreshAllUI();
 
     </script>
 </body>
